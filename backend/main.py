@@ -6,6 +6,7 @@ from typing import Dict, Any
 import json
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from app.database import get_db
 
 from auth.clerk_deps import get_current_user, security
@@ -121,7 +122,6 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     """Health check endpoint that verifies database connectivity."""
     try:
         # Execute a simple query to check database connection
-        from sqlalchemy import text
         result = await db.execute(text("SELECT 1 as is_alive"))
         is_alive = result.scalar()
         
