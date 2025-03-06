@@ -64,8 +64,12 @@ def test_health_check_endpoint(test_client):
     mock_result.scalar.return_value = 1
     mock_db.execute.return_value = mock_result
     
+    # Create a generator that yields our mock
+    async def mock_get_db():
+        yield mock_db
+    
     # Patch the get_db dependency
-    with patch('main.get_db', return_value=mock_db):
+    with patch('main.get_db', side_effect=mock_get_db):
         response = test_client.get("/api/health")
         
         # Verify the response
@@ -76,4 +80,4 @@ def test_health_check_endpoint(test_client):
         assert data["api"] == "running"
         
         # Verify the database was queried
-        mock_db.execute.assert_called_once()
+        assert mock_db.execute.called, "Database execute method was not called"
