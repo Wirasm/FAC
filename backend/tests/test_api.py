@@ -56,7 +56,7 @@ def test_auth_debug_endpoint_with_valid_header_format(test_client):
     assert response.json()["token_format"] == "Valid JWT format"
 
 @pytest.mark.integration
-def test_health_check_endpoint(test_client):
+def test_health_check_endpoint(test_client, monkeypatch):
     """Test the health check endpoint with a mocked database session."""
     # Create a mock for the database session
     mock_db = AsyncMock()
@@ -68,16 +68,19 @@ def test_health_check_endpoint(test_client):
     async def mock_get_db():
         yield mock_db
     
-    # Patch the get_db dependency
-    with patch('main.get_db', side_effect=mock_get_db):
-        response = test_client.get("/api/health")
-        
-        # Verify the response
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "healthy"
-        assert data["database"] == "connected"
-        assert data["api"] == "running"
-        
-        # Verify the database was queried
-        assert mock_db.execute.called, "Database execute method was not called"
+    # Use monkeypatch instead of patch
+    import main
+    monkeypatch.setattr(main, "get_db", mock_get_db)
+    
+    # Make the request
+    response = test_client.get("/api/health")
+    
+    # Verify the response
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert data["database"] == "connected"
+    assert data["api"] == "running"
+    
+    # Verify the database was queried
+    assert mock_db.execute.called, "Database execute method was not called"
