@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get Clerk Token</title>
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y2FyaW5nLWJpcmQtMzQuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      src="https://caring-bird-34.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .hidden {
+            display: none;
+        }
+        textarea {
+            width: 100%;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .log-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            font-family: monospace;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px;
+            border-bottom: 1px solid #eee;
+        }
+        .log-info {
+            color: #0066cc;
+        }
+        .log-error {
+            color: #cc0000;
+        }
+        .log-success {
+            color: #008800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clerk Token Helper</h1>
+        
+        <div id="authenticated-section" class="hidden">
+            <p>You are logged in. Click the button below to get your JWT token.</p>
+            <div>
+                <button id="getToken">Get Token</button>
+                <button id="testAPI">Test API Call</button>
+            </div>
+            <div>
+                <textarea id="tokenOutput" rows="10" cols="80"></textarea>
+            </div>
+            <button id="signOut" style="margin-top: 15px; background-color: #db4437;">Sign Out</button>
+        </div>
+        
+        <div id="unauthenticated-section">
+            <p>Please sign in to get a JWT token.</p>
+            <div id="sign-in"></div>
+        </div>
+        
+        <div class="log-container">
+            <h3>Activity Log</h3>
+            <div id="logEntries"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simple logging utility
+        const logger = {
+            container: null,
+            
+            log: function(message, type = 'info') {
+                if (!this.container) {
+                    this.container = document.getElementById('logEntries');
+                }
+                
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                entry.textContent = `[${timestamp}] ${message}`;
+                
+                this.container.appendChild(entry);
+                this.container.scrollTop = this.container.scrollHeight;
+                
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            },
+            
+            info: function(message) {
+                this.log(message, 'info');
+            },
+            
+            error: function(message) {
+                this.log(message, 'error');
+            },
+            
+            success: function(message) {
+                this.log(message, 'success');
+            }
+        };
+        
+        window.addEventListener('load', async function() {
+            logger.info('Page loaded, initializing Clerk...');
+            
+            try {
+                await Clerk.load();
+                logger.success('Clerk loaded successfully');
+                
+                // Update UI based on authentication state
+                function updateUI() {
+                    const authenticatedSection = document.getElementById('authenticated-section');
+                    const unauthenticatedSection = document.getElementById('unauthenticated-section');
+                    
+                    if (Clerk.user) {
+                        logger.info(`User authenticated: ${Clerk.user.id}`);
+                        authenticatedSection.classList.remove('hidden');
+                        unauthenticatedSection.classList.add('hidden');
+                    } else {
+                        logger.info('No authenticated user');
+                        authenticatedSection.classList.add('hidden');
+                        unauthenticatedSection.classList.remove('hidden');
+                        
+                        // Mount the sign-in component
+                        if (!document.querySelector('#sign-in .cl-component')) {
+                            logger.info('Mounting Clerk sign-in component');
+                            Clerk.mountSignIn(document.getElementById('sign-in'));
+                        }
+                    }
+                }
+                
+                // Initialize UI
+                updateUI();
+                
+                // Listen for auth state changes
+                Clerk.addListener(({ user }) => {
+                    if (user) {
+                        logger.success(`User signed in: ${user.id}`);
+                    } else {
+                        logger.info('User signed out');
+                    }
+                    updateUI();
+                });
+                
+                // Get token button
+                document.getElementById('getToken').addEventListener('click', async function() {
+                    logger.info('Requesting JWT token...');
+                    try {
+                        const token = await Clerk.session.getToken();
+                        logger.success(`Token received (${token.length} characters)`);
+                        document.getElementById('tokenOutput').value = token;
+                    } catch (error) {
+                        logger.error(`Error getting token: ${error.message}`);
+                        document.getElementById('tokenOutput').value = "Error: " + error.message;
+                    }
+                });
+                
+                // Test API button
+                document.getElementById('testAPI').addEventListener('click', async function() {
+                    logger.info('Testing protected API endpoint...');
+                    try {
+                        const token = await Clerk.session.getToken();
+                        if (!token) {
+                            throw new Error('No token available');
+                        }
+                        
+                        logger.info('Making API request to protected endpoint...');
+                        const response = await fetch('http://localhost:8000/api/protected', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            // Don't use credentials: 'include' with CORS
+                            mode: 'cors'
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            logger.error(`API error: ${response.status} ${response.statusText}`);
+                            logger.error(`Error details: ${errorText}`);
+                            throw new Error(`API error: ${response.status} ${response.statusText}`);
+                        }
+                        
+                        const data = await response.json();
+                        logger.success('API call successful');
+                        
+                        // Show the response data and curl command example
+                        const curlCommand = `curl -X GET http://localhost:8000/api/protected -H "Authorization: Bearer ${token}"`;
+                        document.getElementById('tokenOutput').value = 
+                            JSON.stringify(data, null, 2) + 
+                            "\n\n--- CURL Command Example ---\n" + 
+                            curlCommand;
+                    } catch (error) {
+                        logger.error(`API test failed: ${error.message}`);
+                        document.getElementById('tokenOutput').value = "API Error: " + error.message;
+                    }
+                });
+                
+                // Sign out button
+                document.getElementById('signOut').addEventListener('click', async function() {
+                    logger.info('Signing out...');
+                    try {
+                        await Clerk.signOut();
+                        document.getElementById('tokenOutput').value = "";
+                        logger.success('Signed out successfully');
+                    } catch (error) {
+                        logger.error(`Error signing out: ${error.message}`);
+                        console.error("Error signing out:", error);
+                    }
+                });
+                
+            } catch (error) {
+                logger.error(`Failed to initialize Clerk: ${error.message}`);
+                console.error("Clerk initialization error:", error);
+            }
+        });
+    </script>
+</body>
+</html>

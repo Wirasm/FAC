@@ -1,0 +1,49 @@
+plan_name: "set up initial fastapi project, using fastapi and uv"
+
+# Use the list-reflection pattern to run a series of tasks in order one by one with reflection(s) to double check the code is correct
+pattern: list-reflection
+
+# (Recommended) Run every task (including reflection loops) in architect mode where your main_model reasons then drafts the code and your editor_model writes the code
+architect: true
+
+main_model: "o3-mini"
+
+# Used only if mode is "architect: true"
+editor_model: "anthropic/claude-3-7-sonnet-20250219" 
+
+# Code you want your AI Coding Assistant to edit
+editable_context:
+  - "./path/to/file.py"
+
+# Code you want your AI Coding Assistant to read but not edit
+readonly_context:
+  - "./path/to/file.py"
+
+high_level_objective: "Project structure with working examples of each part, we are building modular, there will be an app, and inside the app we will have a core package, auth package for clerk, and and database, then in teh futere a package per service, in an example there would be a suerprofile, and items package for example"
+
+implementation_details: |
+  Project setup with fastapi and uv, clerk
+
+# Your list of tasks aka prompts that will be executed in order one by one
+# (Optional) Add reflection_count to any task to set the number of times to run the reflection prompt after the initial coding prompt
+# (Optional) Add reflection_prompt_prefix to any task to set the prompt prefix that will guide the reflection ai coding prompt
+tasks:
+  - title: "Task 1: high level description"
+    prompt: |
+      high to low level coding prompt for task 1
+
+    # (Optional) Number of times to run the reflection prompt after the initial coding prompt
+    reflection_count: 1
+
+    # (Optional) Set the prompt prefix that will guide the reflection ai coding prompt
+    # reflection_prompt_prefix: "You're reviewing engineering work from a co-worker. Double check their work and make sure it meets the requirements from the original task. If anything is missing add it. If something is wrong, fix it. Be sure to maintain surrounding codebase style, patterns, and structure. Here is the task you're reviewing: "
+
+  - title: "Task 2: high level description"
+    prompt: |
+      high to low level coding prompt for task 2
+    reflection_count: 1
+  
+  - title: "Task 3: high level description"
+    prompt: |
+      high to low level coding prompt for task 3
+    reflection_count: 1
