@@ -6,8 +6,7 @@ including connection setup, session management, and dependency injection.
 """
 
 import pytest
-import asyncio
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, AsyncMock
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -15,6 +14,7 @@ from app.database import get_db, AsyncSessionFactory, engine
 
 
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_engine_creation():
     """Test that the database engine is created correctly."""
     assert engine is not None
@@ -22,6 +22,7 @@ async def test_engine_creation():
 
 
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_session_factory():
     """Test that the session factory creates sessions correctly."""
     session = AsyncSessionFactory()
@@ -30,6 +31,7 @@ async def test_session_factory():
 
 
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_get_db_success():
     """Test the get_db dependency with successful operations."""
     # Create a mock session
@@ -57,6 +59,7 @@ async def test_get_db_success():
 
 
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_get_db_sqlalchemy_error():
     """Test the get_db dependency with a SQLAlchemy error."""
     # Create a mock session
@@ -83,6 +86,7 @@ async def test_get_db_sqlalchemy_error():
 
 
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_get_db_general_exception():
     """Test the get_db dependency with a general exception."""
     # Create a mock session
@@ -109,6 +113,7 @@ async def test_get_db_general_exception():
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 async def test_real_database_connection():
     """
     Test connecting to the actual database.
