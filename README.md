@@ -69,7 +69,7 @@ This repository is organized as a monorepo containing both backend and frontend 
 Run the backend tests from the backend directory:
 ```
 cd backend
-pytest
+uv run pytest
 ```
 
 ## 🔒 Authentication
