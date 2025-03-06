@@ -24,7 +24,12 @@ db_logger = setup_logger("database", settings.LOG_LEVEL)
 
 # Create async database engine
 # Format: postgresql+asyncpg://user:password@host:port/dbname
-DATABASE_URL = f"postgresql+asyncpg://postgres:Portlane7878@localhost:5432/playroom_db_dev"
+# Get the database URL from environment variables
+DATABASE_URL = settings.DATABASE_URL
+
+# Convert standard PostgreSQL URL to asyncpg format if needed
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 db_logger.info(f"Initializing database connection to PostgreSQL")
 
