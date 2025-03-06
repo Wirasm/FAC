@@ -121,7 +121,8 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     """Health check endpoint that verifies database connectivity."""
     try:
         # Execute a simple query to check database connection
-        result = await db.execute("SELECT 1 as is_alive")
+        from sqlalchemy import text
+        result = await db.execute(text("SELECT 1 as is_alive"))
         is_alive = result.scalar()
         
         app_logger.debug(f"Database health check: {is_alive}")

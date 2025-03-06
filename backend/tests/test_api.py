@@ -64,8 +64,9 @@ def test_health_check_endpoint(test_client):
     mock_result.scalar.return_value = 1
     mock_db.execute.return_value = mock_result
     
-    # Patch the get_db dependency
-    with patch('main.get_db', return_value=mock_db):
+    # Patch the get_db dependency and the text function
+    with patch('main.get_db', return_value=mock_db), \
+         patch('main.text', return_value="SELECT 1 as is_alive"):
         response = test_client.get("/api/health")
         
         # Verify the response

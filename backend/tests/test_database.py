@@ -121,11 +121,9 @@ async def test_real_database_connection():
     Test connecting to the actual database.
     
     This test requires a running database instance.
-    Skip if not in integration test mode.
     """
-    pytest.skip("Integration test - requires running database")
-    
     # Test with a real session
     async with engine.connect() as conn:
-        result = await conn.execute("SELECT 1")
+        from sqlalchemy import text
+        result = await conn.execute(text("SELECT 1"))
         assert result.scalar() == 1
