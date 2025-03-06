@@ -5,6 +5,7 @@ description = "A full-stack starter template integrating FastAPI backend with As
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg>=0.30.0",
     "clerk-backend-api>=1.8.0",
     "fastapi[standard]>=0.115.11",
     "httpx>=0.28.1",
