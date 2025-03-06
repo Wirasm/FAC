@@ -1,5 +1,6 @@
 import pytest
 from fastapi import status
+from unittest.mock import patch, AsyncMock, MagicMock
 
 @pytest.mark.integration
 def test_hello_world_endpoint(test_client):
@@ -53,3 +54,26 @@ def test_auth_debug_endpoint_with_valid_header_format(test_client):
     assert response.status_code == status.HTTP_200_OK
     assert "message" in response.json()
     assert response.json()["token_format"] == "Valid JWT format"
+
+@pytest.mark.integration
+def test_health_check_endpoint(test_client):
+    """Test the health check endpoint with a mocked database session."""
+    # Create a mock for the database session
+    mock_db = AsyncMock()
+    mock_result = MagicMock()
+    mock_result.scalar.return_value = 1
+    mock_db.execute.return_value = mock_result
+    
+    # Patch the get_db dependency
+    with patch('main.get_db', return_value=mock_db):
+        response = test_client.get("/api/health")
+        
+        # Verify the response
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "healthy"
+        assert data["database"] == "connected"
+        assert data["api"] == "running"
+        
+        # Verify the database was queried
+        mock_db.execute.assert_called_once()

@@ -5,6 +5,8 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request
 from typing import Dict, Any
 import json
 import logging
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_db
 
 from auth.clerk_deps import get_current_user, security
 
@@ -112,6 +114,29 @@ async def auth_debug_route(request: Request):
         "token_length": len(token),
         "token_format": "Valid JWT format" if token.count('.') == 2 else "Invalid JWT format"
     }
+
+
+@app.get("/api/health")
+async def health_check(db: AsyncSession = Depends(get_db)):
+    """Health check endpoint that verifies database connectivity."""
+    try:
+        # Execute a simple query to check database connection
+        result = await db.execute("SELECT 1 as is_alive")
+        is_alive = result.scalar()
+        
+        app_logger.debug(f"Database health check: {is_alive}")
+        
+        return {
+            "status": "healthy",
+            "database": "connected" if is_alive == 1 else "error",
+            "api": "running"
+        }
+    except Exception as e:
+        app_logger.error(f"Database health check failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database connection failed: {str(e)}"
+        )
 
 
 @app.get("/api/debug/token")
