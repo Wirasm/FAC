@@ -1,5 +1,7 @@
 ---
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/astro/components'
+import '../styles/tailwind.css'
+import '../styles/clerk.css'
 
 const { title } = Astro.props
 ---
@@ -10,21 +12,81 @@ const { title } = Astro.props
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <title>{title || 'FAC Starter'}</title>
   </head>
-  <body>
-    <header>
-      <h1>{title}</h1>
-      <nav>
-        <SignedOut>
-          <SignInButton mode="modal" />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-      </nav>
+  <body class="min-h-screen bg-gray-50">
+    <header class="bg-white shadow-sm">
+      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-xl font-bold text-indigo-600">FAC Starter</a>
+          
+          <!-- Desktop Menu -->
+          <nav class="hidden md:flex space-x-6">
+            <a href="/" class="text-gray-600 hover:text-indigo-600 transition-colors">Home</a>
+            <a href="/items" class="text-gray-600 hover:text-indigo-600 transition-colors">Items</a>
+          </nav>
+          
+          <!-- Mobile Menu Button -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-500 hover:text-indigo-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <SignedOut>
+            <div class="clerk-button-wrapper inline-block">
+              <SignInButton mode="modal">
+                <button class="clerk-custom-btn px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                  Sign In
+                </button>
+              </SignInButton>
+            </div>
+          </SignedOut>
+          <SignedIn>
+            <div class="clerk-user-wrapper">
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          </SignedIn>
+        </div>
+      </div>
     </header>
-    <article>
+    
+    <!-- Mobile menu (hidden by default) -->
+    <div id="mobile-menu" class="hidden bg-white border-b md:hidden">
+      <div class="container mx-auto px-4 py-3">
+        <nav class="flex flex-col space-y-3">
+          <a href="/" class="text-gray-600 hover:text-indigo-600 transition-colors py-2">Home</a>
+          <a href="/items" class="text-gray-600 hover:text-indigo-600 transition-colors py-2">Items</a>
+        </nav>
+      </div>
+    </div>
+    
+    <main class="container mx-auto py-8 px-4">
       <slot />
-    </article>
+    </main>
+    
+    <footer class="bg-white border-t mt-auto">
+      <div class="container mx-auto px-4 py-6">
+        <p class="text-center text-gray-500 text-sm">
+          &copy; {new Date().getFullYear()} FAC Starter. All rights reserved.
+        </p>
+      </div>
+    </footer>
+    
+    <script>
+      // Mobile menu toggle functionality
+      document.addEventListener('DOMContentLoaded', () => {
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (menuButton && mobileMenu) {
+          menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+          });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -7,17 +7,15 @@ and dependency injection for FastAPI.
 """
 
 from typing import AsyncGenerator
-import logging
-
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    AsyncSession,
-    async_sessionmaker,
-)
-from sqlalchemy.exc import SQLAlchemyError
 
 from core.config import settings
 from core.logging import setup_logger
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 # Set up a database-specific logger
 db_logger = setup_logger("database", settings.LOG_LEVEL)
@@ -55,17 +53,17 @@ db_logger.debug("Database engine and session factory initialized")
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     FastAPI dependency that provides an async database session.
-    
+
     Yields:
         AsyncSession: SQLAlchemy async session that will be automatically closed
                      when the request is complete.
-    
+
     Raises:
         SQLAlchemyError: If there's an issue with the database connection or operations.
     """
     session = AsyncSessionFactory()
     db_logger.debug("Database session created")
-    
+
     try:
         yield session
         await session.commit()

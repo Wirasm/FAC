@@ -1,10 +1,13 @@
-import pytest
-import time
-import jwt
 import asyncio
+import time
+
+import jwt
+import pytest
 from fastapi.testclient import TestClient
-from main import app
-from core.config import settings
+
+from app.core.config import settings
+from app.main import app
+
 
 @pytest.fixture
 def test_client():
@@ -14,6 +17,7 @@ def test_client():
     with TestClient(app) as client:
         yield client
 
+
 @pytest.fixture
 def test_settings():
     """
@@ -21,11 +25,12 @@ def test_settings():
     """
     return settings
 
+
 @pytest.fixture
 def mock_jwt_token():
     """
     Create a mock JWT token for testing.
-    
+
     This creates a token that looks like a valid Clerk token but is signed with a test key.
     """
     # Private key for testing (this is a test key, not a real one)
@@ -57,30 +62,27 @@ JLqtbF5HdZRQkn+LGZBzlPv5ZwDYbYnpgzWEEL55gUZXU+NUBwRVCZCNHb661ew2
 0P456RlMEIooJJZynLY0+sCHrHqVNZEKJzRYdXI+GE+M9qHh+EGLNgzFQGdJ7kBk
 rCoyQ0KqNw7jELaBrKBz7yH/cX0=
 -----END PRIVATE KEY-----"""
-    
+
     # Create a payload similar to what Clerk would provide
     now = int(time.time())
     payload = {
         "sub": "user_test123456789",  # Subject (user ID)
-        "iat": now,                    # Issued at
-        "exp": now + 3600,             # Expires in 1 hour
+        "iat": now,  # Issued at
+        "exp": now + 3600,  # Expires in 1 hour
         "iss": settings.CLERK_FRONTEND_API_URL,  # Issuer
-        "nbf": now - 10,               # Not valid before
-        "aud": "fastapi-backend",      # Audience
-        "email": "test@example.com",   # Additional claims
-        "name": "Test User"
+        "nbf": now - 10,  # Not valid before
+        "aud": "fastapi-backend",  # Audience
+        "email": "test@example.com",  # Additional claims
+        "name": "Test User",
     }
-    
+
     # Create header with kid that matches our test key
-    headers = {
-        "alg": "RS256",
-        "typ": "JWT",
-        "kid": "test_key_123"
-    }
-    
+    headers = {"alg": "RS256", "typ": "JWT", "kid": "test_key_123"}
+
     # Sign the token
     token = jwt.encode(payload, private_key, algorithm="RS256", headers=headers)
     return token
+
 
 @pytest.fixture
 def auth_header(mock_jwt_token):

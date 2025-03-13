@@ -8,14 +8,20 @@ dependencies = [
     "asyncpg>=0.30.0",
     "clerk-backend-api>=1.8.0",
     "fastapi[standard]>=0.115.11",
+    "greenlet>=3.1.1",
     "httpx>=0.28.1",
     "pydantic>=2.10.6",
     "pydantic-settings>=2.8.1",
     "pyjwt>=2.10.1",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.25.3",
     "pytest-cov>=6.0.0",
     "python-dotenv>=1.0.1",
     "python-jose>=3.4.0",
     "python-multipart>=0.0.20",
     "requests>=2.32.3",
+    "sqlalchemy>=2.0.38",
 ]
+
+[tool.ruff]
+target-version = "py312"

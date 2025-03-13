@@ -1,5 +1,5 @@
 import pytest
-from core.config import Settings
+from app.core.config import Settings
 
 @pytest.mark.unit
 def test_settings_defaults(test_settings):

@@ -69,8 +69,11 @@ def test_health_check_endpoint(test_client, monkeypatch):
         yield mock_db
     
     # Use monkeypatch instead of patch
-    import main
-    monkeypatch.setattr(main, "get_db", mock_get_db)
+    import app.main
+    from app.main import app, get_db
+    # We need to patch where FastAPI's dependency injection system looks for get_db
+    # This requires patching app.dependency_overrides
+    app.dependency_overrides[get_db] = mock_get_db
     
     # Make the request
     response = test_client.get("/api/health")

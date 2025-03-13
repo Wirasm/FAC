@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     CORS_MAX_AGE: int = 600  # 10 minutes
 
     # Database settings
-    DATABASE_URL: str = "postgresql://postgres:Portlane7878@localhost/playroom_db_dev"
+    DATABASE_URL: str = "postgresql://postgres:yourpassword@localhost/items-db-dev"
     
     # Clerk Authentication Settings
     CLERK_SECRET_KEY: str = ""

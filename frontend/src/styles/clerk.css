@@ -1,0 +1,40 @@
+/* Clerk component styles */
+
+/* Custom button implementation for SignInButton */
+.clerk-custom-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+
+/* Remove default Clerk button styling */
+.cl-rootBox button:not(.clerk-custom-btn),
+.cl-internal-b3fm6y {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/* UserButton styling */
+.cl-userButtonBox {
+  --clerk-button-size: 2.5rem;
+}
+
+.cl-userButtonTrigger {
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.cl-userButtonTrigger:hover {
+  border-color: #4f46e5;
+}
+
+/* Modal styling */
+.cl-modalContent {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
